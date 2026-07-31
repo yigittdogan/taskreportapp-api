@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="TaskReport.API/TaskReport.API.csproj" />
+  <Project Path="TaskReport.Core/TaskReport.Core.csproj" />
+  <Project Path="TaskReport.Data/TaskReport.Data.csproj" />
+</Solution>
