@@ -1,0 +1,87 @@
+<div class="stats-container" style="max-width: 600px; margin: 0 auto;">
+  <h2 class="stats-title" style="text-align: center; border-bottom: none;">Profil Ayarları</h2>
+  
+  <div class="stat-card" style="flex-direction: column; align-items: stretch; gap: 20px; padding: 30px;">
+    
+    <div style="text-align: center; margin-bottom: 10px;">
+       <div style="width: 80px; height: 80px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 10px auto; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);">
+         {{ (userProfile.name || 'U')[0] | uppercase }}
+       </div>
+       <p style="color: var(--text-sub); margin: 0; font-size: 14px;">Üyelik bilgilerinizi aşağıdan güncelleyebilirsiniz.</p>
+    </div>
+
+    <div class="input-group" style="text-align: left;">
+      <label style="color: var(--text-main); font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block;">Ad Soyad</label>
+      <input type="text" [(ngModel)]="userProfile.name" class="custom-input" style="width: 100%; box-sizing: border-box;">
+    </div>
+
+    <div class="input-group" style="text-align: left;">
+      <label style="color: var(--text-main); font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block;">E-Posta</label>
+      <input type="email" [(ngModel)]="userProfile.email" class="custom-input" style="width: 100%; box-sizing: border-box;">
+    </div>
+
+    <div class="input-group" style="text-align: left;">
+      <label style="color: var(--text-main); font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block;">Kullanıcı Adı</label>
+      <input type="text" [(ngModel)]="userProfile.username" class="custom-input" style="width: 100%; box-sizing: border-box;">
+    </div>
+
+    <div class="input-group" style="text-align: left;">
+      <label style="color: var(--text-main); font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block;">Yeni Şifre</label>
+      <input type="password" [(ngModel)]="userProfile.password" class="custom-input" placeholder="Değiştirmek istemiyorsanız boş bırakın" style="width: 100%; box-sizing: border-box;">
+    </div>
+
+    <div class="input-group" style="text-align: left;">
+      <label style="color: var(--text-main); font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block;">Yeni Şifreyi Doğrula</label>
+      <input type="password" [(ngModel)]="confirmPassword" class="custom-input" placeholder="Şifrenizi tekrar girin" style="width: 100%; box-sizing: border-box;">
+    </div>
+
+    <button (click)="saveProfile()" style="width: 100%; padding: 14px; margin-top: 10px; border-radius: 12px; font-weight: bold; font-size: 15px; border: none; background: #10b981; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);" [disabled]="isProfileLoading">
+      {{ isProfileLoading ? 'Kod Gönderiliyor...' : 'Değişiklikleri Kaydet' }}
+    </button>
+
+    <button (click)="openDeleteModal()" style="width: 100%; padding: 14px; margin-top: 15px; border-radius: 12px; font-weight: bold; font-size: 15px; border: 2px solid #ef4444; background: transparent; color: #ef4444; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#ef4444';">
+      🚨 Hesabımı Kalıcı Olarak Sil
+    </button>
+
+  </div>
+</div>
+
+<!-- 📧 GARANTİLİ KİLİTLİ E-POSTA DOĞRULAMA (OTP) MODALI -->
+<div *ngIf="isOtpModalOpen" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(10px) !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 9999999 !important;">
+  <div style="background: var(--card-bg, #ffffff) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: var(--text-main, #1e293b) !important; padding: 30px !important; border-radius: 24px !important; width: 420px !important; max-width: 90vw !important; text-align: center !important; box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important; display: flex !important; flex-direction: column !important; gap: 15px !important;">
+    <div style="font-size: 45px;">📧</div>
+    <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: var(--text-main);">E-Posta Doğrulama</h2>
+    <p style="color: var(--text-sub); margin: 0; font-size: 14px; line-height: 1.5;">
+      Şifrenizi değiştirmek için <b>{{ userProfile.email }}</b> adresine 6 haneli bir onay kodu gönderdik.
+    </p>
+
+    <div style="text-align: left; margin-top: 10px;">
+      <input type="text" [(ngModel)]="otpCode" class="custom-input" placeholder="Örn: 123456" style="width: 100%; box-sizing: border-box; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 6px; padding: 12px;" (keyup.enter)="verifyOtpAndSave()">
+    </div>
+
+    <div style="margin-top: 10px; display: flex; gap: 12px;">
+      <button type="button" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 10px;" (click)="closeOtpModal()">İptal</button>
+      <button type="button" class="btn-success" style="flex: 1; padding: 12px; border-radius: 10px;" (click)="verifyOtpAndSave()" [disabled]="isOtpLoading">
+        {{ isOtpLoading ? 'Doğrulanıyor...' : 'Onayla ve Kaydet' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- HESAP SİLME ONAY MODALI -->
+<div *ngIf="isDeleteModalOpen" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(10px) !important; display: flex !important; justify-content: center !important; align-items: center !important; z-index: 9999999 !important;">
+  <div style="background: var(--card-bg, #ffffff) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: var(--text-main, #1e293b) !important; padding: 30px !important; border-radius: 24px !important; width: 400px !important; max-width: 90vw !important; text-align: center !important; box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important; display: flex !important; flex-direction: column !important; gap: 15px !important;">
+    <div style="font-size: 40px; margin-bottom: -10px;">⚠️</div>
+    <h2 style="border: none; padding: 0; margin: 0; font-size: 22px; color: #ef4444;">Hesabı Sil</h2>
+    <p style="color: var(--text-sub); margin: 0; font-size: 14px; line-height: 1.5;">Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinir. Lütfen devam etmek için şifrenizi girin.</p>
+
+    <div style="text-align: left; margin-top: 10px;">
+      <input type="password" [(ngModel)]="deleteConfirmPassword" class="custom-input" placeholder="Şifrenizi girin" style="width: 100%; box-sizing: border-box;" (keyup.enter)="confirmDeleteAccount()">
+    </div>
+
+    <div style="margin-top: 10px; display: flex; gap: 15px;">
+      <button type="button" class="btn-success" style="flex: 1; background: var(--button-primary);" (click)="closeDeleteModal()">İptal</button>
+      <button type="button" class="btn-danger" style="flex: 1; background: #ef4444;" (click)="confirmDeleteAccount()">Kalıcı Olarak Sil</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="selection-wrapper">
+  <div class="selection-card">
+    <div class="header">
+      <h2>Hoş Geldin, {{ userName }} 👋</h2>
+      <p>Birlikte çalışmak istediğin takımı seç veya hemen yeni bir takım kurarak arkadaşlarını davet et.</p>
+    </div>
+
+    <!-- Mevcut Takımlar listesi -->
+    <div class="teams-section">
+      <h3>Takımların</h3>
+      <div class="teams-grid" *ngIf="teams.length > 0; else noTeams">
+        <div *ngFor="let team of teams" class="team-box" (click)="selectTeam(team.teamId, team.teamName)">
+          <div class="team-icon">👥</div>
+          <div class="team-info">
+            <h4>{{ team.teamName }}</h4>
+            <span class="role-badge">{{ team.role }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noTeams>
+        <p class="empty-text">Henüz hiçbir takıma üye değilsin. Aşağıdan ilk takımını oluşturabilirsin! 👇</p>
+      </ng-template>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Yeni Takım Oluşturma Alanı -->
+    <div class="create-section">
+      <h3>Yeni Takım Oluştur</h3>
+      <div class="input-group">
+        <input type="text" [(ngModel)]="newTeamName" placeholder="Takım Adı (Örn: Yazılım Ekibi)" class="custom-input" />
+        <button (click)="onCreateTeam()" class="btn-create">Oluştur</button>
+      </div>
+    </div>
+
+    <button (click)="logout()" class="btn-logout">Çıkış Yap</button>
+  </div>
+</div>

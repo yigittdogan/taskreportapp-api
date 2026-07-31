@@ -1,0 +1,132 @@
+<div class="login-wrapper" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
+  
+  <button class="btn-theme-toggle" (click)="toggleTheme()">
+    {{ isDarkTheme ? '☀️ Açık Tema' : '🌙 Karanlık Tema' }}
+  </button>
+
+  <div class="glass-card">
+    <div class="login-header">
+      <h2 *ngIf="isLoginMode">Giriş Yap</h2>
+      <h2 *ngIf="!isLoginMode && !isForgotPasswordMode">Kayıt Ol</h2>
+      <h2 *ngIf="isForgotPasswordMode">Şifremi Unuttum</h2>
+      <p *ngIf="isLoginMode">Görevlerine kaldığın yerden devam et.</p>
+      <p *ngIf="!isLoginMode && !isForgotPasswordMode">Yeni bir hesap oluştur ve takımlara katıl.</p>
+      <p *ngIf="isForgotPasswordMode">E-posta adresinizi girin, sıfırlama kodu gönderelim.</p>
+    </div>
+
+    <!-- 1. GİRİŞ FORMU -->
+    <div *ngIf="isLoginMode" class="login-form">
+      <div class="input-group">
+        <label>Kullanıcı Adı veya E-Posta</label>
+        <input type="text" [(ngModel)]="username" placeholder="Kullanıcı Adı veya E-Posta" (keyup.enter)="onLogin()">
+      </div>
+      <div class="input-group">
+        <label>Şifre</label>
+        <input type="password" [(ngModel)]="password" placeholder="Şifre" (keyup.enter)="onLogin()">
+      </div>
+      
+      <div style="text-align: right; margin-top: -10px; margin-bottom: 10px;">
+        <a class="toggle-link" (click)="toggleForgotPassword()" style="font-size: 13px; cursor: pointer;">Şifremi Unuttum?</a>
+      </div>
+
+      <button (click)="onLogin()" class="btn-primary">Giriş Yap</button>
+
+      <!-- GOOGLE İLE GİRİŞ YAP BUTONU -->
+      <div style="margin-top: 15px; position: relative; text-align: center;">
+        <hr style="border: 0; border-top: 1px solid rgba(128, 128, 128, 0.3); margin: 20px 0;">
+        <span style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--bg-color, #fff); padding: 0 10px; color: gray; font-size: 12px; border-radius: 5px;">VEYA</span>
+        
+        <!-- İŞTE BURASI GERÇEK GOOGLE BUTONUNUN ÇİZİLECEĞİ ALAN -->
+        <div id="googleBtn" style="display: flex; justify-content: center; width: 100%; margin-top: 20px;"></div>
+      </div>
+      
+      <p class="toggle-text">Hesabın yok mu? <a class="toggle-link" (click)="toggleMode()">Kayıt Ol</a></p>
+    </div>
+
+    <!-- 2. ŞİFREMİ UNUTTUM FORMU -->
+    <div *ngIf="isForgotPasswordMode" class="login-form">
+      <div *ngIf="!isForgotVerificationStep" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="input-group">
+          <label>E-Posta Adresi</label>
+          <input type="email" [(ngModel)]="forgotPasswordEmail" placeholder="Sisteme kayıtlı e-posta adresiniz" [disabled]="isLoading" (keyup.enter)="onForgotPasswordStart()">
+        </div>
+        
+        <button (click)="onForgotPasswordStart()" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Mail Gönderiliyor...' : 'Doğrulama Kodu Gönder' }}
+        </button>
+        <p class="toggle-text"><a class="toggle-link" (click)="cancelForgotPassword()">Giriş Ekranına Dön</a></p>
+      </div>
+
+      <div *ngIf="isForgotVerificationStep" style="display: flex; flex-direction: column; gap: 16px; text-align: center;">
+        <div style="font-size: 40px; margin-bottom: -10px;">🔐</div>
+        <h3 style="color: var(--text-main); margin: 0; font-size: 20px;">Yeni Şifre Belirle</h3>
+        <p style="color: var(--text-sub); font-size: 13px; margin-top: 0;">
+          <b>{{ forgotPasswordEmail }}</b> adresine gönderdiğimiz kodu ve yeni şifrenizi girin.
+        </p>
+
+        <div class="input-group">
+          <input type="text" [(ngModel)]="forgotPasswordCode" placeholder="6 Haneli Kod" maxlength="6" 
+                 style="text-align: center; letter-spacing: 5px; font-size: 18px; font-weight: bold;" 
+                 [disabled]="isLoading">
+        </div>
+        <div class="input-group">
+          <input type="password" [(ngModel)]="forgotPasswordNewPassword" placeholder="Yeni Şifre" 
+                 [disabled]="isLoading" (keyup.enter)="onResetPassword()">
+        </div>
+
+        <button (click)="onResetPassword()" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Kaydediliyor...' : 'Şifreyi Sıfırla' }}
+        </button>
+        <a class="toggle-link" (click)="toggleForgotPassword()" style="font-size: 13px; margin-top: 5px;">Baştan Başla</a>
+      </div>
+    </div>
+
+    <!-- 3. KAYIT FORMU -->
+    <div *ngIf="!isLoginMode && !isForgotPasswordMode" class="login-form">
+      
+      <div *ngIf="!isVerificationStep" style="display: flex; flex-direction: column; gap: 16px;">
+       <div class="input-group">
+          <label>Ad Soyad</label>
+          <input type="text" [(ngModel)]="registerName" placeholder="Ad Soyad" [disabled]="isLoading" (keyup.enter)="onRegisterStart()">
+        </div>
+        <div class="input-group">
+          <label>E-Posta</label>
+          <input type="email" [(ngModel)]="registerEmail" placeholder="ornek@mail.com" [disabled]="isLoading" (keyup.enter)="onRegisterStart()">
+        </div>
+        <div class="input-group">
+          <label>Kullanıcı Adı</label>
+          <input type="text" [(ngModel)]="registerUsername" placeholder="Kullanıcı Adı" [disabled]="isLoading" (keyup.enter)="onRegisterStart()">
+        </div>
+        <div class="input-group">
+          <label>Şifre</label>
+          <input type="password" [(ngModel)]="registerPassword" placeholder="Şifre" [disabled]="isLoading" (keyup.enter)="onRegisterStart()">
+        </div>
+        
+        <button (click)="onRegisterStart()" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Mail Gönderiliyor...' : 'Devam Et' }}
+        </button>
+        <p class="toggle-text">Zaten hesabın var mı? <a class="toggle-link" (click)="toggleMode()">Giriş Yap</a></p>
+      </div>
+
+      <div *ngIf="isVerificationStep" style="display: flex; flex-direction: column; gap: 16px; text-align: center;">
+        <div style="font-size: 40px; margin-bottom: -10px;">✉️</div>
+        <h3 style="color: var(--text-main); margin: 0; font-size: 20px;">E-Posta Doğrulama</h3>
+        <p style="color: var(--text-sub); font-size: 13px; margin-top: 0;">
+          <b>{{ registerEmail }}</b> adresine 6 haneli bir kod gönderdik. Lütfen kodu aşağıya girin.
+        </p>
+
+       <div class="input-group">
+          <input type="text" [(ngModel)]="verificationCode" placeholder="123456" maxlength="6" 
+                 style="text-align: center; letter-spacing: 8px; font-size: 20px; font-weight: bold;" 
+                 [disabled]="isLoading" (keyup.enter)="onVerifyAndRegister()">
+        </div>
+
+        <button (click)="onVerifyAndRegister()" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Kontrol Ediliyor...' : 'Doğrula ve Kayıt Ol' }}
+        </button>
+        <a class="toggle-link" (click)="cancelVerification()" style="font-size: 13px; margin-top: 5px;">Geri Dön</a>
+      </div>
+
+    </div>
+  </div>
+</div>

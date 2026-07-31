@@ -1,0 +1,250 @@
+.board-columns { 
+  display: flex; gap: 25px; align-items: flex-start; 
+  overflow-x: auto; 
+  padding-bottom: 20px; width: 100%;
+}
+.column {
+  background-color: var(--column-bg); border: var(--column-border);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px; flex: 1; min-width: 320px; padding: 15px;
+  box-shadow: 0 10px 30px -5px var(--shadow-color);
+}
+.column-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid var(--card-border);
+}
+.header-title-group { display: flex; align-items: center; gap: 10px; }
+.column-header h3 { margin: 0; color: var(--text-main); font-size: 18px; }
+.task-count {
+  background-color: var(--button-primary); color: white;
+  padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;
+}
+.btn-add-task {
+  background: var(--button-primary); color: white; border: none;
+  width: 32px; height: 32px; border-radius: 50%; font-size: 22px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 2px 5px var(--shadow-color); transition: all 0.2s;
+}
+.btn-add-task:hover { transform: scale(1.15); background: var(--button-primary-hover); }
+
+.task-list { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
+.task-card {
+  background: var(--card-bg); backdrop-filter: blur(44px); -webkit-backdrop-filter: blur(44px);
+  border-radius: 16px; border: var(--card-border);
+  box-shadow: 0 8px 32px var(--shadow-color), inset 0 1px 0 var(--inset-reflection), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 36px 18px var(--inset-glow);
+  position: relative; overflow: hidden; padding: 16px;
+  border-left: 5px solid var(--button-primary); 
+  transition: transform 0.2s, box-shadow 0.2s; cursor: grab;
+}
+.task-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--shadow-color), inset 0 1px 0 var(--inset-reflection); }
+.task-card.done-card { border-left-color: #10b981; opacity: 0.7; }
+.task-card.done-card .task-title { text-decoration: line-through; }
+.task-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+.task-card::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent, rgba(255, 255, 255, 0.1));
+}
+
+.task-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.task-title { font-family: "Source Sans 3", sans-serif; font-weight: 800; margin: 0; font-size: 18px; color: var(--text-main); word-break: break-word; }
+
+.task-description {
+  font-size: 13px; 
+  color: var(--text-sub); 
+  margin-top: 0; 
+  margin-bottom: 12px; 
+  line-height: 1.5; 
+  white-space: pre-wrap; 
+  word-wrap: break-word; 
+  overflow-wrap: break-word;
+  
+  /* YENİ EKLENEN SINIRLAR (Kartın devleşmesini engeller) */
+  max-height: 90px;        /* Açıklama alanının ekranda kaplayacağı maksimum yükseklik */
+  overflow-y: auto;        /* Yazı uzarsa kartın içinde mini scroll çıkar */
+  padding-right: 4px;      /* Scroll çubuğu yazının üstüne binmesin */
+}
+
+.task-description::-webkit-scrollbar {
+  width: 3px;
+}
+
+.task-description::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+
+.card-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-action { 
+  font-family: "Nunito", sans-serif; flex: 0 1 auto; padding: 6px 10px; 
+  font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; 
+  transition: all 0.2s; 
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; 
+}
+
+.btn-edit { background: transparent; border: 1.5px solid #f59e0b; color: #f59e0b; }
+.btn-edit:hover { background: #f59e0b; color: white; }
+.btn-delete { background: transparent; border: 1.5px solid #ef4444; color: #ef4444; }
+.btn-delete:hover { background: #ef4444; color: white; }
+
+.type-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.badge-bug { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
+.badge-story { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+.badge-epic { background: rgba(99, 102, 241, 0.15); color: #6366f1; border: 1px solid #6366f1; }
+.badge-task { background: rgba(148, 163, 184, 0.15); color: var(--text-main); border: 1px solid var(--column-border); }
+
+/* SÜRÜKLE BIRAK ANIMASYONLARI */
+.cdk-drag-preview { box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important; opacity: 0.95 !important; border-radius: 16px !important; transition: none !important; }
+.cdk-drag-placeholder { opacity: 0.2; border: 2px dashed rgba(255, 255, 255, 0.5); }
+.cdk-drag-animating { transition: transform 250ms cubic-bezier(0, 0, 0.2, 1) !important; }
+.task-list.cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) { transition: transform 250ms cubic-bezier(0, 0, 0.2, 1); }
+
+/* --- ACİLİYET (ZAMAN) ROZETİ VE ANİMASYONU --- */
+.urgent-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  background: rgba(239, 68, 68, 0.1); 
+  color: #ef4444; 
+  border: 1px dashed #ef4444;
+  animation: pulse-urgent 2s infinite;
+}
+
+@keyframes pulse-urgent {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* --- YENİ ŞIK ÖNCELİK ROZETİ --- */
+.priority-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+}
+.badge-high { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
+.badge-medium { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2); }
+.badge-low { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
+
+/* --- KARTIN ALT KISMI VE ACİLİYET ROZETİ --- */
+.card-footer {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: 15px;
+}
+
+.card-actions { display: flex; gap: 8px; }
+
+.urgent-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  display: inline-flex;
+  background: rgba(245, 158, 11, 0.1); 
+  color: #f59e0b; 
+  border: 1px dashed #f59e0b;
+  animation: pulse-urgent 2s infinite;
+}
+
+/* Tarihi geçmiş görevler için kırmızı alarm animasyonu */
+.urgent-badge.overdue {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: #ef4444;
+  animation: pulse-overdue 1s infinite;
+}
+
+@keyframes pulse-urgent {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-overdue {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Karttaki Atanan Kişi İkonu */
+.assignee-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: white;
+    border: 2px solid var(--card-bg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* --- YENİ EKLENEN TASARIM SINIFLARI (Tarih ve Ek Butonu) --- */
+.date-pill-card {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(148, 163, 184, 0.1); /* Hem karanlık hem aydınlık temada kusursuz durur */
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  width: fit-content;
+}
+
+.attachment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  background: rgba(14, 165, 233, 0.1);
+  color: #0284c7;
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.attachment-btn:hover {
+  background: rgba(14, 165, 233, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Drag Drop Araya Girememe Çözümü */
+.cdk-drag {
+    margin-bottom: 0 !important; /* Margin kaldırılır */
+}
+.column-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Görevlerin arasındaki mesafe margin ile değil gap ile verilir */
+}
+
+

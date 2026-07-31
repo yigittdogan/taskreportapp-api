@@ -1,0 +1,999 @@
+/* ==========================================
+   1. TEMA TANIMLAMALARI (CSS DEĞİŞKENLERİ)
+   ========================================== */
+.board-wrapper.light-theme {
+  --bg-gradient: linear-gradient(-225deg, #2cd8d5 0%, #c5c1ff 56%, #ffbac3 100%);  
+  --text-main: #1e293b;            
+  --text-sub: #475569;
+  --column-bg: rgba(255, 255, 255, 0.15); 
+  --column-border: 1px solid rgba(255, 255, 255, 0.25);
+  --card-bg: rgba(255, 255, 255, 0.4);
+  --card-border: 1px solid rgba(255, 255, 255, 0.5);
+  --inset-glow: rgba(255, 255, 255, 0.8);
+  --inset-reflection: rgba(255, 255, 255, 0.5);
+  --button-primary: #475569;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.8);
+}
+
+.board-wrapper.dark-theme {
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --column-bg: rgba(15, 23, 42, 0.4);
+  --column-border: 1px solid rgba(255, 255, 255, 0.08);
+  --card-bg: rgba(15, 23, 42, 0.4);
+  --card-border: 1px solid rgba(255, 255, 255, 0.1);
+  --inset-glow: rgba(15, 23, 42, 0.6);
+  --inset-reflection: rgba(255, 255, 255, 0.15);
+  --button-primary: #38bdf8;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --input-bg: rgba(15, 23, 42, 0.6);
+}
+
+/* ==========================================
+   2. GENEL ARALIKLAR VE TASARIM
+   ========================================== */
+body, html { margin: 0; padding: 0; font-family: "Nunito", sans-serif; }
+
+.board-wrapper {
+  font-family: "Nunito", sans-serif; 
+  background: var(--bg-gradient); 
+  background-attachment: fixed;
+  background-size: cover !important;     
+  background-repeat: no-repeat !important; 
+  min-height: 100vh;
+  box-sizing: border-box; transition: all 0.3s ease; display: flex;
+}
+
+.main-content {
+  margin-left: 260px; flex: 1; padding: 30px; display: flex; flex-direction: column;
+  gap: 25px; min-height: 100vh; box-sizing: border-box;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+.main-content.content-collapsed { margin-left: 80px; }
+
+/* ==========================================
+   3. TOAST (BİLDİRİMLER) VE HEADER
+   ========================================== */
+.toast-container {
+  position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+  padding: 12px 25px; border-radius: 30px; color: white;
+  font-weight: 800; font-size: 14px; z-index: 100000;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: none; 
+}
+.toast-success { background: linear-gradient(135deg, #10b981, #059669); }
+.toast-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 25px; opacity: 1; }
+}
+
+.top-header { 
+  display: flex; justify-content: space-between; align-items: center; 
+  padding-bottom: 15px; position: sticky; top: 0; z-index: 100;
+}
+
+.btn-toggle-sidebar {
+  background: var(--card-bg); border: var(--card-border); color: var(--text-main);
+  font-size: 20px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+}
+
+.btn-team-select {
+  background: white; border: 1px solid rgba(0,0,0,0.05); padding: 8px 16px;
+  border-radius: 20px; font-family: inherit; font-size: 14px; font-weight: 700;
+  color: var(--text-main); cursor: pointer; display: flex; align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.2s ease;
+}
+.btn-team-select:hover { background: #f8fafc; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(0,0,0,0.06); }
+
+.dark-theme .btn-team-select { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.1); }
+.dark-theme .btn-team-select:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-invite-modal {
+  display: inline-flex; align-items: center; justify-content: center; width: 100%;
+  background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px dashed #10b981;
+  padding: 12px 15px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-invite-modal:hover { background: #10b981; color: white; }
+.dark-theme .btn-invite-modal { background: rgba(16, 185, 129, 0.05); }
+.dark-theme .btn-invite-modal:hover { background: #10b981; color: white; }
+
+/* ==========================================
+   4. MODALLAR (TEMİZLENMİŞ GLASSMORPHIC YAPI VE SCROLL)
+   ========================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;
+    display: flex; justify-content: center; align-items: center; z-index: 999999 !important;
+}
+
+.modal-content, .glass-task-modal {
+    background: rgba(255, 255, 255, 0.85) !important; 
+    backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important; color: #1e293b !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.8) !important;
+    padding: 25px 30px !important; border-radius: 28px !important;
+    display: flex; flex-direction: column; gap: 16px; box-sizing: border-box !important;
+    width: 500px !important; max-width: 90vw !important;
+    max-height: 85vh !important; overflow-y: auto !important; /* TAŞMA VE SCROLL ÇÖZÜMÜ */
+}
+
+.dark-theme .modal-content, .dark-theme .glass-task-modal {
+    background: rgba(15, 23, 42, 0.85) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Şık Scrollbar */
+.modal-content::-webkit-scrollbar, .glass-task-modal::-webkit-scrollbar { width: 6px; }
+.modal-content::-webkit-scrollbar-track, .glass-task-modal::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+.modal-content::-webkit-scrollbar-thumb, .glass-task-modal::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 10px; }
+.modal-content::-webkit-scrollbar-thumb:hover, .glass-task-modal::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.7); }
+
+.glass-modal-title, .modal-content h2 { margin: 0; color: inherit !important; font-size: 22px !important; font-weight: 800 !important; border-bottom: 1px solid rgba(100, 116, 139, 0.15); padding-bottom: 12px; }
+.modal-label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: var(--text-sub) !important; letter-spacing: 0.5px;}
+
+/* Form Elemanları ve Textbox Taşma Çözümü */
+.custom-input, 
+.custom-select {
+  border: 1px solid rgba(148, 163, 184, 0.35) !important; /* Karanlık ve aydınlık temada kutu sınırlarını belirginleştirir */
+  background: rgba(255, 255, 255, 0.05) !important;       /* Kutunun içine hafif cam efekti verir */
+  color: var(--text-main) !important;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.custom-input:focus, 
+.custom-select:focus {
+  border-color: #38bdf8 !important; /* Mavi/Neon odak çizgisi */
+  outline: none;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Placeholder (İçindeki silik yazılar) renk ayarı */
+.custom-input::placeholder {
+  color: var(--text-sub);
+  opacity: 0.6;
+}
+
+.description-section-wrapper { width: 100% !important; box-sizing: border-box !important; margin: 18px 0 24px 0 !important; display: flex; flex-direction: column; gap: 8px; }
+.modal-textarea { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; min-height: 85px !important; resize: vertical; margin-top: 4px !important; padding: 12px 16px !important; border-radius: 14px !important; }
+
+/* Aksiyon Butonları */
+.modal-actions { display: flex; gap: 15px; margin-top: auto; }
+.btn-success, .btn-danger { font-family: "Nunito", sans-serif; color: white; border: none; padding: 12px; border-radius: 10px; flex: 1; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+.btn-success { background: #10b981; } .btn-danger { background: #ef4444; }
+.btn-success:hover, .btn-danger:hover { opacity: 0.85; }
+
+/* ==========================================
+   5. TAKIM LİSTESİ VE GÖREVLİ LİSTESİ (BİRLEŞTİRİLMİŞ)
+   ========================================== */
+.team-list-container, .glass-members-dropdown-container {
+  max-height: 220px !important; overflow-y: auto !important; text-align: left !important; margin: 15px 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important; border-radius: 14px !important; padding: 8px !important;
+  background: rgba(255, 255, 255, 0.2) !important; display: flex !important; flex-direction: column; gap: 6px; box-sizing: border-box;
+}
+.dark-theme .team-list-container, .dark-theme .glass-members-dropdown-container { background: rgba(0, 0, 0, 0.2) !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+
+.team-list-item, .glass-member-option {
+  display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px;
+  padding: 8px 12px !important; border-radius: 10px !important; cursor: pointer !important; font-weight: 700 !important; font-size: 14px !important;
+  color: var(--text-main) !important; background: rgba(255, 255, 255, 0.6) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; transition: all 0.2s ease !important;
+}
+.team-list-item:hover, .glass-member-option:hover { background: rgba(255, 255, 255, 0.9) !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.dark-theme .team-list-item, .dark-theme .glass-member-option { background: rgba(255, 255, 255, 0.05) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+.dark-theme .team-list-item:hover, .dark-theme .glass-member-option:hover { background: rgba(255, 255, 255, 0.1) !important; }
+
+.active-team, .selected-option { background: rgba(56, 189, 248, 0.25) !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; }
+.check-icon, .opt-check { font-weight: 800 !important; color: #38bdf8 !important; font-size: 16px !important; }
+
+.opt-avatar { width: 28px; height: 28px; background: #38bdf8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0; }
+.unassigned-avatar { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.opt-name { flex: 1; font-weight: 700; font-size: 14px; color: var(--text-main); }
+
+/* ==========================================
+   6. ROZETLER (BADGES)
+   ========================================== */
+.glass-modal-header-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 12px; }
+.dark-theme .glass-modal-header-row { border-bottom-color: rgba(255, 255, 255, 0.08); }
+.glass-badges-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.pro-badge-capsule { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); color: var(--text-main); }
+.dark-theme .pro-badge-capsule { background: rgba(30, 41, 59, 0.6); border-color: rgba(255, 255, 255, 0.12); color: #f8fafc; }
+
+.priority-high-bg { background: rgba(239, 68, 68, 0.15) !important; border-color: rgba(239, 68, 68, 0.4) !important; color: #ef4444 !important; }
+.priority-med-bg { background: rgba(245, 158, 11, 0.15) !important; border-color: rgba(245, 158, 11, 0.4) !important; color: #f59e0b !important; }
+.priority-low-bg { background: rgba(16, 185, 129, 0.15) !important; border-color: rgba(16, 185, 129, 0.4) !important; color: #10b981 !important; }
+
+/* Kart İçindeki Kullanıcı Rozetleri */
+.task-assignee-avatar-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.15); padding: 3px 10px 3px 3px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 11px; font-weight: 700; width: fit-content; }
+.pill-avatar-circle { width: 22px; height: 22px; background: #38bdf8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; box-shadow: 0 2px 4px rgba(56, 189, 248, 0.3); }
+.pill-member-name { color: var(--text-main); font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+/* ==========================================
+   7. ALT GÖREVLER (SUBTASKS)
+   ========================================== */
+.glass-subtasks-container { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 12px; margin-top: 10px; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+.dark-theme .glass-subtasks-container { background: rgba(15, 23, 42, 0.35); border-color: rgba(255, 255, 255, 0.08); }
+
+.glass-subtask-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.6); padding: 10px 16px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
+.glass-subtask-item:hover { transform: translateY(-2px) scale(1.01); background: rgba(255, 255, 255, 0.65); border-color: rgba(56, 189, 248, 0.5); box-shadow: 0 8px 20px rgba(56, 189, 248, 0.15); }
+.dark-theme .glass-subtask-item { background: rgba(30, 41, 59, 0.4); border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+.dark-theme .glass-subtask-item:hover { background: rgba(30, 41, 59, 0.7); border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+
+.completed-subtask { background: rgba(16, 185, 129, 0.12) !important; border-color: rgba(16, 185, 129, 0.35) !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.1) !important; }
+.completed-subtask .subtask-title { text-decoration: line-through; color: var(--text-sub) !important; opacity: 0.6; }
+
+.subtask-checkbox-label { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; flex: 1; }
+.subtask-checkbox-label input[type="checkbox"] { display: none; }
+.custom-checkbox { width: 22px; height: 22px; border: 2px solid rgba(148, 163, 184, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.2); flex-shrink: 0; }
+.glass-subtask-item:hover .custom-checkbox { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
+.subtask-checkbox-label input[type="checkbox"]:checked + .custom-checkbox { background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
+.subtask-checkbox-label input[type="checkbox"]:checked + .custom-checkbox::after { content: '✓'; color: white; font-size: 13px; font-weight: 900; }
+.subtask-title { font-size: 13.5px; font-weight: 700; color: var(--text-main); transition: all 0.2s; }
+
+.btn-delete-subtask { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; opacity: 0.7; transition: all 0.2s ease; }
+.btn-delete-subtask:hover { opacity: 1; background: #ef4444; color: white; transform: scale(1.1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+.subtask-input-row { display: flex; gap: 10px; margin-top: 10px; }
+.subtask-input { flex: 1; padding: 10px 16px !important; font-size: 13px !important; border-radius: 14px !important; background: rgba(255, 255, 255, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.4) !important; }
+.dark-theme .subtask-input { background: rgba(15, 23, 42, 0.4) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+.btn-add-subtask { background: linear-gradient(135deg, #38bdf8, #0284c7); color: white; border: none; padding: 0 18px; border-radius: 14px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); }
+.btn-add-subtask:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(56, 189, 248, 0.5); }
+
+.subtask-percentage-badge { font-size: 11px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 10px; }
+.subtask-progress-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 10px; }
+.dark-theme .subtask-progress-bar-bg { background: rgba(0, 0, 0, 0.25); border-color: rgba(255, 255, 255, 0.08); }
+.subtask-progress-bar-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 10px; transition: width 0.4s ease-in-out; box-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+.no-subtasks-text { margin: 0; padding: 10px; text-align: center; font-size: 12px; color: var(--text-sub); }
+
+/* ==========================================
+   8. İSTATİSTİKLER (STATS) SEKME STİLLERİ
+   ========================================== */
+.stats-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+.stats-title { margin: 0; color: var(--text-main); font-family: "Source Sans 3", sans-serif; font-weight: 800; font-size: 24px; padding-bottom: 15px; border-bottom: 1px solid var(--column-border);}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.progress-card { grid-column: 1 / span 4; display: flex; flex-direction: column; align-items: stretch; gap: 15px; }
+
+@media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .progress-card { grid-column: 1 / span 2; } }
+@media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } .progress-card { grid-column: 1 / span 1; } }
+
+.stat-card { background: var(--card-bg); backdrop-filter: blur(44px); -webkit-backdrop-filter: blur(44px); border-radius: 16px; border: var(--card-border); box-shadow: 0 8px 32px var(--shadow-color), inset 0 1px 0 var(--inset-reflection), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 36px 18px var(--inset-glow); padding: 24px; display: flex; align-items: center; gap: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--shadow-color), inset 0 1px 0 var(--inset-reflection); }
+.stat-icon { font-size: 35px; background: rgba(255, 255, 255, 0.2); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.3); flex-shrink: 0; }
+.dark-theme .stat-icon { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); }
+.stat-info { display: flex; flex-direction: column; overflow: hidden; }
+.stat-info h3 { margin: 0; font-size: 13px; color: var(--text-sub); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
+.stat-number { margin: 5px 0 0 0; font-size: 36px; font-weight: 800; color: var(--text-main); font-family: "Source Sans 3", sans-serif; }
+.stat-text { font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================
+   9. TAKVİM (CALENDAR) BULUTSU GLASSMORPHISM
+   ========================================== */
+.calendar-wrapper { position: relative; width: 100%; height: calc(100vh - 120px); z-index: 1; display: flex; flex-direction: column; }
+.cloud-blob { position: absolute; border-radius: 50%; filter: blur(60px); z-index: -1; opacity: 0.6; }
+.blob-1 { top: -20px; left: -20px; width: 300px; height: 300px; background: #c5c1ff; } 
+.blob-2 { bottom: -50px; right: -20px; width: 400px; height: 400px; background: #ffbac3; } 
+.blob-3 { top: 40%; left: 30%; width: 250px; height: 250px; background: #2cd8d5; opacity: 0.4; } 
+
+.calendar-glass-container { width: 100%; max-width: 95%; margin: 0 auto; height: 100%; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 40px; padding: 30px; box-shadow: 0 20px 50px rgba(31, 38, 135, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5); box-sizing: border-box; overflow: hidden; }
+.dark-theme .calendar-glass-container { background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.05); }
+
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
+.cal-nav-btn { background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.5); color: var(--text-main); font-size: 18px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.cal-nav-btn:hover { background: rgba(255, 255, 255, 0.6); transform: scale(1.05); }
+
+.calendar-zoom-box { flex: 1; display: flex; flex-direction: column; transform-origin: top center; transition: transform 0.2s ease; width: 100%; }
+.calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; }
+.weekday-name { font-weight: 800; font-size: 13px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 1fr; flex: 1; gap: 12px; }
+.calendar-day-cell { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; min-height: 0; height: 100%; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; transition: all 0.3s ease; }
+.calendar-day-cell:not(.empty-cell):hover { background: rgba(255, 255, 255, 0.35); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+.dark-theme .calendar-day-cell { background: rgba(0, 0, 0, 0.2); border-color: rgba(255,255,255,0.05); }
+.dark-theme .calendar-day-cell:not(.empty-cell):hover { background: rgba(255, 255, 255, 0.1); }
+.empty-cell { background: transparent !important; border-color: transparent !important; box-shadow: none !important; pointer-events: none; }
+.day-number { font-weight: 800; font-size: 16px; color: var(--text-main); opacity: 0.8; margin-bottom: 5px; margin-left: 5px; }
+
+.day-tasks-container { display: flex; flex-direction: column; gap: 6px; }
+.cal-task-pill { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s; }
+.cal-task-pill:hover { transform: scale(1.03); filter: brightness(1.05); }
+.pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pill-title { font-size: 11px; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pill-urgent { background: rgba(255, 186, 195, 0.6); border-color: rgba(255, 186, 195, 0.9); } .pill-urgent .pill-dot { background: #ef4444; }
+.pill-normal { background: rgba(197, 193, 255, 0.6); border-color: rgba(197, 193, 255, 0.9); } .pill-normal .pill-dot { background: #6366f1; }
+.pill-low { background: rgba(44, 216, 213, 0.3); border-color: rgba(44, 216, 213, 0.6); } .pill-low .pill-dot { background: #10b981; }
+.dark-theme .cal-task-pill { background: rgba(0, 0, 0, 0.4); border-color: rgba(255,255,255,0.1); } .dark-theme .pill-title { color: #f8fafc; }
+
+/* DATEBOX AÇILIR MENÜ */
+.custom-datepicker-container { position: relative; display: flex; justify-content: center; }
+.cal-picker-button { display: flex; align-items: center; background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(12px); padding: 8px 24px; border-radius: 20px; border: 1.5px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); color: var(--text-main); font-weight: 800; font-size: 18px; cursor: pointer; transition: all 0.2s ease; }
+.cal-picker-button:hover { background: rgba(255, 255, 255, 0.5); }
+.dark-theme .cal-picker-button { background: rgba(15, 23, 42, 0.6); border: 1.5px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+.dark-theme .cal-picker-button:hover { background: rgba(15, 23, 42, 0.8); }
+
+.glass-picker-popup { position: absolute; top: 115%; left: 50%; transform: translateX(-50%); width: 280px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); z-index: 1000; }
+.dark-theme .glass-picker-popup { background: rgba(30, 41, 59, 0.98); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+
+.picker-year-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.picker-months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.picker-month-btn { display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1; border-radius: 50%; font-weight: 700; font-size: 14px; color: var(--text-main); cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.picker-month-btn:hover { background: rgba(255, 255, 255, 0.4); border-color: rgba(255, 255, 255, 0.6); }
+.dark-theme .picker-month-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+.active-month { background: #38bdf8 !important; color: white !important; font-weight: 800; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4); border: none !important; }
+
+
+/* SABİT MODAL PARÇALARI VE TARİHLER */
+.modal-fixed-header {
+  padding: 25px 30px 15px 30px;
+  background: rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.dark-theme .modal-fixed-header { background: rgba(15, 23, 42, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.task-dates-row { display: flex; gap: 10px; margin-top: 15px; }
+.date-pill { font-size: 11px; font-weight: 700; color: var(--text-sub); background: rgba(255, 255, 255, 0.6); padding: 4px 10px; border-radius: 10px; border: 1px solid rgba(0, 0, 0, 0.05); }
+.dark-theme .date-pill { background: rgba(0, 0, 0, 0.2); color: #94a3b8; border-color: rgba(255, 255, 255, 0.05); }
+
+.modal-scroll-area {
+  padding: 20px 30px;
+  overflow-y: auto;
+  flex: 1; /* Ortadaki alanın uzamasını sağlar */
+  display: flex; flex-direction: column; gap: 20px;
+}
+.modal-scroll-area::-webkit-scrollbar { width: 6px; }
+.modal-scroll-area::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 10px; }
+
+.modal-fixed-footer {
+  padding: 15px 30px 25px 30px;
+  background: rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex; gap: 12px;
+}
+.dark-theme .modal-fixed-footer { background: rgba(15, 23, 42, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+/* TAKVİM HÜCRESİ TAŞMA ENGELLEYİCİ */
+.calendar-day-cell {
+  max-height: 115px; /* Kutunun maksimum uzayabileceği sınır */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Taşan kısmı dışarı sızdırmaz */
+}
+
+/* GÜNÜN İÇİNDEKİ GÖREVLERİN LİSTESİ */
+.day-tasks-container {
+  flex: 1;
+  overflow-y: auto; /* Görevler sığmazsa sadece o günün içinde scroll çıkar */
+  padding-right: 4px;
+}
+
+/* KAYDIRMA ÇUBUĞUNU ŞIKLAŞTIRMA (Görünmez/İnce Scroll) */
+.day-tasks-container::-webkit-scrollbar {
+  width: 4px;
+}
+.day-tasks-container::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+.day-tasks-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* TAKVİM HÜCRESİ KESİN SINIRLANDIRMA */
+.calendar-day-cell {
+  height: 95px !important;       /* Her gün kutusunun yüksekliği sabit ve kilitli olacak */
+  max-height: 95px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;   /* Kutudan taşan hiçbir şey dışarı sızamaz */
+  position: relative;
+}
+
+/* GÜNÜN İÇİNDEKİ GÖREV LİSTESİ VE KAYDIRMA ÇUBUĞU */
+.day-tasks-container {
+  flex: 1 !important;
+  overflow-y: auto !important;   /* Birden fazla görev olursa hücrenin içinde mini scroll çıkar */
+  max-height: 65px !important;
+  padding-right: 2px;
+}
+
+/* Şık ve ince scroll tasarımı */
+.day-tasks-container::-webkit-scrollbar {
+  width: 3px;
+}
+.day-tasks-container::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+/* 🔍 FİLTRE ÇUBUĞU TASARIMI */
+/* ========================================= */
+/* 🔍 GLASSMORPHIC FİLTRE DROPDOWN TASARIMI */
+/* ========================================= */
+
+.filter-trigger-btn {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.filter-active-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #10b981;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--column-bg, #fff);
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+
+.glass-filter-dropdown {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 290px;
+  background: rgba(255, 255, 255, 0.65); /* Yarı saydam beyaz */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+  z-index: 1000;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.filter-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+}
+
+.filter-dropdown-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #1e293b);
+  letter-spacing: 0.2px;
+}
+
+.clear-filters-text {
+  font-size: 11px;
+  color: #ef4444;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 4px 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.clear-filters-text:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.glass-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.glass-input-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.input-icon {
+  margin-left: 12px;
+  color: #64748b;
+  opacity: 0.7;
+}
+
+.glass-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  padding: 12px;
+  color: var(--text-main, #333);
+  font-weight: 600;
+}
+
+.glass-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.glass-input.select-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Karanlık Tema (Dark Mode) Desteği */
+body.dark-theme .glass-filter-dropdown,
+.dark-theme .glass-filter-dropdown {
+  background: rgba(30, 30, 45, 0.75);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .glass-input-wrapper,
+.dark-theme .glass-input-wrapper {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+body.dark-theme .glass-input,
+.dark-theme .glass-input {
+  color: #eee;
+}
+body.dark-theme .filter-dropdown-header,
+.dark-theme .filter-dropdown-header {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+body.dark-theme .glass-input.select-input option {
+  background: #1e1e2d; /* Açılır liste içi okunabilirlik */
+  color: #eee;
+}
+
+/* ========================================= */
+/* 💬 GLASSMORPHIC GÖREV YORUMLARI TASARIMI  */
+/* ========================================= */
+
+.glass-comment-input-box {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.glass-comment-textarea {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  resize: none;
+  font-size: 13px;
+  color: var(--text-main, #333);
+  padding: 0 !important;
+  width: 100%;
+}
+
+.glass-comment-textarea::placeholder {
+  color: var(--text-sub, #94a3b8);
+  font-weight: 500;
+}
+
+.btn-send-comment {
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+}
+
+.btn-send-comment:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+.glass-comments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.glass-comment-card {
+  display: flex;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.glass-comment-card:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  color: white;
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.comment-author {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-main, #1e293b);
+}
+
+.comment-time {
+  font-size: 10px;
+  color: var(--text-sub, #94a3b8);
+  font-weight: 600;
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-main, #334155);
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.no-comments-text {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-sub, #94a3b8);
+  margin: 15px 0;
+  font-weight: 500;
+}
+
+/* Karanlık Tema (Dark Mode) Uyum Tasarımı */
+body.dark-theme .glass-comment-input-box,
+.dark-theme .glass-comment-input-box {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .glass-comment-card,
+.dark-theme .glass-comment-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-theme .comment-author,
+.dark-theme .comment-author {
+  color: #f1f5f9;
+}
+
+body.dark-theme .comment-text,
+.dark-theme .comment-text {
+  color: #cbd5e1;
+}
+
+.dark-theme select.glass-input option,
+body.dark-theme select.glass-input option,
+.dark-theme .glass-filter-dropdown option {
+  background-color: #1e293b !important; /* Karanlık temayla birebir uyumlu koyu ton */
+  color: #f8fafc !important;            /* Net okunabilir parlak beyaz yazı */
+  padding: 10px;
+}
+
+/* Seçeneğin üzerine gelindiğinde veya seçildiğinde */
+.dark-theme select.glass-input option:hover,
+.dark-theme select.glass-input option:focus,
+.dark-theme select.glass-input option:checked {
+  background-color: #38bdf8 !important; /* Şık cyan/mavi vurgu rengi */
+  color: #0f172a !important;
+}
+
+/* 🚨 GÖREVİ ÜSTLENEN KİŞİ SEÇİLDİĞİNDE MAVİ PARLAMA EFEKTİ */
+.glass-member-option.selected-option,
+.dark-theme .glass-member-option.selected-option {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border: 2px solid #38bdf8 !important;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.6) !important;
+}
+
+/* ==========================================
+   🚀 SCROLL YIRTILMASINI VE DRAG & DROP'U BİR ANDA ÇÖZEN FİKSE
+   ========================================== */
+
+/* 1. Görev kartlarındaki ağır blur efektini kaldırıp yüksek performanslı opaklık veriyoruz */
+.task-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.7) !important; /* Aydınlık tema için cam hissi veren şeffaf beyaz */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Karanlık Tema İçin Görev Kartı */
+.dark-theme .task-card {
+  background: rgba(15, 23, 42, 0.8) !important; /* Karanlık tema için şeffaf lacivert */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 2. Sürüklenen Kart (Preview) */
+.cdk-drag-preview {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #38bdf8 !important;
+}
+
+.dark-theme .cdk-drag-preview {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* ==========================================
+   💬 SOHBET WIDGET - GLASSMORPHISM THEME
+   ========================================== */
+.chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: inherit; }
+
+/* Buton Tasarımı */
+.glass-btn {
+  background: linear-gradient(135deg, rgba(236,72,153,0.8), rgba(139,92,246,0.8), rgba(56,189,248,0.8));
+  color: white; border: none; border-radius: 30px; padding: 12px 25px;
+  font-size: 15px; font-weight: bold; cursor: pointer;
+  box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.4);
+  backdrop-filter: blur(10px); transition: 0.3s;
+}
+.glass-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 40px 0 rgba(236, 72, 153, 0.6); }
+
+/* Cam Panel */
+.glass-panel {
+  width: 360px; height: 550px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.dark-theme .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.1); }
+
+/* Header */
+.glass-header {
+  background: linear-gradient(135deg, rgba(236,72,153,0.85), rgba(139,92,246,0.85));
+  padding: 15px 20px; color: white; font-weight: bold;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.icon-btn { background: none; border: none; color: white; cursor: pointer; font-size: 16px; transition: 0.2s; }
+.icon-btn:hover { transform: scale(1.2); }
+
+/* Sekmeler */
+.chat-tabs { display: flex; background: rgba(255,255,255,0.3); border-bottom: 1px solid rgba(255,255,255,0.5); }
+.chat-tabs button {
+  flex: 1; background: none; border: none; padding: 12px; font-weight: bold;
+  color: #475569; cursor: pointer; transition: 0.3s;
+}
+.chat-tabs button.active { background: rgba(255,255,255,0.6); color: #8b5cf6; border-bottom: 2px solid #8b5cf6; }
+.dark-theme .chat-tabs button { color: #cbd5e1; }
+.dark-theme .chat-tabs button.active { background: rgba(0,0,0,0.3); color: #38bdf8; border-color: #38bdf8; }
+
+/* Liste Elemanları */
+.contact-list { flex: 1; overflow-y: auto; padding: 10px; }
+.glass-item {
+  display: flex; align-items: center; gap: 15px; padding: 12px; margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.5); border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer; transition: 0.2s;
+}
+.glass-item:hover { background: rgba(255, 255, 255, 0.8); transform: translateX(5px); }
+.contact-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #38bdf8, #8b5cf6); color: white;
+  display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;
+}
+.contact-name { font-weight: 600; color: #334155; }
+.dark-theme .glass-item { background: rgba(0,0,0,0.2); color: white; }
+.dark-theme .contact-name { color: #e2e8f0; }
+
+/* Mesaj Alanı */
+.chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+.msg-wrapper { display: flex; align-items: center; gap: 8px; max-width: 85%; }
+.msg-wrapper.sent { align-self: flex-end; flex-direction: row-reverse; }
+.msg-wrapper.received { align-self: flex-start; }
+
+.glass-bubble {
+  padding: 10px 15px; border-radius: 18px; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.sent .glass-bubble {
+  background: linear-gradient(135deg, #8b5cf6, #38bdf8); color: white;
+  border-bottom-right-radius: 4px;
+}
+.received .glass-bubble {
+  background: rgba(255, 255, 255, 0.8); color: #1e293b;
+  border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.9);
+}
+.time { display: block; font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; }
+
+/* Silme Butonu (Sadece Hover'da Görünür) */
+.delete-msg-btn {
+  background: none; border: none; font-size: 14px; cursor: pointer;
+  opacity: 0; transition: 0.2s; padding: 5px; border-radius: 50%;
+}
+.msg-wrapper:hover .delete-msg-btn { opacity: 1; }
+.delete-msg-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+/* Input Alanı */
+.glass-input-area {
+  display: flex; padding: 12px; background: rgba(255,255,255,0.3);
+  border-top: 1px solid rgba(255,255,255,0.5); gap: 10px; align-items: center;
+}
+.glass-input-area input {
+  flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 20px; background: rgba(255,255,255,0.6); outline: none;
+  font-family: inherit; color: #334155; transition: 0.3s;
+}
+.glass-input-area input:focus { background: rgba(255,255,255,0.9); border-color: #8b5cf6; }
+.glass-btn-small {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white;
+  border: none; border-radius: 50%; width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 16px; transition: 0.2s; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
+.glass-btn-small:hover { transform: scale(1.1); }
+.dark-theme .glass-input-area { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); }
+.dark-theme .glass-input-area input { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
+
+
+/* Rozet ve Bildirim Stilleri */
+.badge-dot {
+  background: #ef4444; color: white; border-radius: 50px; padding: 2px 8px; font-size: 11px; margin-left: 6px; font-weight: bold;
+}
+.tab-badge {
+  background: #ef4444; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; margin-left: 5px; vertical-align: middle;
+}
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.back-arrow-btn { display: flex; align-items: center; justify-content: center; color: white; }
+.contact-info-container { display: flex; flex-direction: column; gap: 3px; }
+.unread-badge { font-size: 11px; color: #ec4899; font-weight: bold; }
+.empty-state { padding: 30px; text-align: center; color: #64748b; font-size: 14px; }
+
+/* Sürükleme İşlemi Hızlandırması (Angular CDK Drag & Drop Fix) */
+.cdk-drag-preview {
+  transition: none !important; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+  opacity: 0.9;
+}
+.cdk-drag-animating {
+  transition: transform 150ms cubic-bezier(0, 0, 0.2, 1) !important;
+}
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 150ms cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+/* --- SOHBET YENİ TASARIM GÜNCELLEMELERİ --- */
+
+/* 1. Şık Geri Butonu */
+.back-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-3px); /* Hafif sola kayma efekti */
+}
+
+/* 2. Sekme Üzerindeki Bildirim Rozeti */
+.chat-tab-badge {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+}
+
+/* 3. Mesaj Alanı ve Üzerine Gelince Çıkan Çöp Kutusu */
+.msg-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+  position: relative;
+}
+.msg-wrapper.sent {
+  flex-direction: row-reverse; /* Gönderilen mesaj sağa, butonu sola alır */
+}
+
+.delete-msg-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  color: #ef4444;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+  /* Başlangıçta görünmez ve ufak */
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.7);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Mesajın üstüne gelindiğinde çöp kutusunu şıkça göster */
+.msg-wrapper:hover .delete-msg-btn {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.delete-msg-btn:hover {
+  background: #ef4444;
+  color: white;
+}
